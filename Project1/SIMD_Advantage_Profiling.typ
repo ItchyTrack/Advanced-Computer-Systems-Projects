@@ -148,7 +148,7 @@ Looking in the second file we see no SIMD instructions.
 	...
 	```
 }
-This shows that the code is doing what we expected and that we are actually using SIMD instructions
+This shows that the code is doing what we expected and that we are actually using SIMD instructions when we are marking data as SIMD.
 #pagebreak()
 = Roofline Interpretation #label("Roofline Interpretation")
 
