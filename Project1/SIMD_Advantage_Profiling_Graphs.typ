@@ -266,10 +266,270 @@
 		Speedup: #{slope2/slope1}
 	]
 }))
+#let printGFLOPS_STRIDE(item) = align(center, block(breakable:false,  {
+	let SIMDData1 = data.at(item.replace("_STRIDE=2", "_STRIDE=1"))
+	let SIMDData2 = data.at(item)
+	let SIMDData3 = data.at(item.replace("_STRIDE=2", "_STRIDE=4"))
+	if (data.keys().contains(item.replace("_STRIDE=2", "_STRIDE=8"))) {
+		let SIMDData4 = data.at(item.replace("_STRIDE=2", "_STRIDE=8"))
+		[
+		= #item.replace("_DO_", ",_").replace("_USE_", ",_").replace("_STRIDE=2", "").replace("_SIMD", "").split("_").map(x=>" "+ x.at(0) + lower(x.slice(1))).join():\ Strides:1,2,4,8 #v(-0.1cm)
+		#lq.diagram(
+			xscale: lq.scale.log(base: 2),
+			yscale: lq.scale.log(base: 2),
+			legend: (position: top+right, fill: none, inset:0em, stroke: none),
+			width: 3in,
+			height: 3in,
+			xlabel: [Array Size],
+			ylabel: [GFLOPS],
+			xaxis: (auto-exponent-threshold: 0),
+			yaxis: (auto-exponent-threshold: 0),
+			// 1
+			let data = bin-errors(SIMDData1.at("sizes"), SIMDData1.at("gflops")),
+			let u = data.map(x=>x.at(0)),
+			let mean = data.map(x=>x.at(1)),
+			let stderr = data.map(x=>x.at(2)),
+			let ys = data.map(x=>x.at(3)),
+			lq.plot(
+				u,
+				mean,
+				stroke: none,
+				mark-size: 0pt,
+				yerr: stderr,
+				z-index: 10,
+				color: black
+			),
+			lq.scatter((), (), color:blue, size: 0.2in, label: [Stride=1]),
+			let xs = u.zip(ys).map((x)=>range(x.at(1).len()).map(_=>x.at(0))).flatten(),
+			lq.scatter(
+				xs,
+				ys.flatten(),
+				color:blue
+			),
+			let (slope1, intercept1, r_squared1) = statastic.arrayLinearRegression(xs, ys.flatten()).values(),
+			// 2
+			let data = bin-errors(SIMDData2.at("sizes"), SIMDData2.at("gflops")),
+			let u = data.map(x=>x.at(0)),
+			let mean = data.map(x=>x.at(1)),
+			let stderr = data.map(x=>x.at(2)),
+			let ys = data.map(x=>x.at(3)),
+			lq.plot(
+				u,
+				mean,
+				stroke: none,
+				mark-size: 0pt,
+				yerr: stderr,
+				z-index: 10,
+				color: black
+			),
+			lq.scatter((), (), color:orange, size: 0.2in, label: [Stride=2]),
+			let xs = u.zip(ys).map((x)=>range(x.at(1).len()).map(_=>x.at(0))).flatten(),
+			lq.scatter(
+				xs,
+				ys.flatten(),
+				color:orange
+			),
+			let (slope2, intercept2, r_squared2) = statastic.arrayLinearRegression(xs, ys.flatten()).values(),
+			// 4
+			let data = bin-errors(SIMDData3.at("sizes"), SIMDData3.at("gflops")),
+			let u = data.map(x=>x.at(0)),
+			let mean = data.map(x=>x.at(1)),
+			let stderr = data.map(x=>x.at(2)),
+			let ys = data.map(x=>x.at(3)),
+			lq.plot(
+				u,
+				mean,
+				stroke: none,
+				mark-size: 0pt,
+				yerr: stderr,
+				z-index: 10,
+				color: black
+			),
+			lq.scatter((), (), color:green, size: 0.2in, label: [Stride=4]),
+			let xs = u.zip(ys).map((x)=>range(x.at(1).len()).map(_=>x.at(0))).flatten(),
+			lq.scatter(
+				xs,
+				ys.flatten(),
+				color:green
+			),
+			let (slope3, intercept3, r_squared3) = statastic.arrayLinearRegression(xs, ys.flatten()).values(),
+			// 8
+			let data = bin-errors(SIMDData4.at("sizes"), SIMDData4.at("gflops")),
+			let u = data.map(x=>x.at(0)),
+			let mean = data.map(x=>x.at(1)),
+			let stderr = data.map(x=>x.at(2)),
+			let ys = data.map(x=>x.at(3)),
+			lq.plot(
+				u,
+				mean,
+				stroke: none,
+				mark-size: 0pt,
+				yerr: stderr,
+				z-index: 10,
+				color: black
+			),
+			lq.scatter((), (), color:yellow, size: 0.2in, label: [Stride=8]),
+			let xs = u.zip(ys).map((x)=>range(x.at(1).len()).map(_=>x.at(0))).flatten(),
+			lq.scatter(
+				xs,
+				ys.flatten(),
+				color:yellow
+			),
+			let (slope4, intercept4, r_squared4) = statastic.arrayLinearRegression(xs, ys.flatten()).values(),
+		)\
+		#align(left)[
+			$
+			"Stride=1: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope1)\
+			"Stride=2: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope2)\
+			"Stride=4: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope3)\
+			"Stride=8: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope4)\
+			$
+		]
+	]
+	} else {
+		let SIMDData4 = data.at(item.replace("_STRIDE=2", "_STRIDE=8").replace("_SIMD", "_no-vectorize"))
+		[
+		= #item.replace("_DO_", ",_").replace("_USE_", ",_").replace("_STRIDE=2", "").replace("_SIMD", "").split("_").map(x=>" "+ x.at(0) + lower(x.slice(1))).join():\ Strides:1,2,4,8 #v(-0.1cm)
+		#lq.diagram(
+			xscale: lq.scale.log(base: 2),
+			yscale: lq.scale.log(base: 2),
+			legend: (position: top+right, fill: none, inset:0em, stroke: none),
+			width: 3in,
+			height: 3in,
+			xlabel: [Array Size],
+			ylabel: [GFLOPS],
+			xaxis: (auto-exponent-threshold: 0),
+			yaxis: (auto-exponent-threshold: 0),
+			// 1
+			let data = bin-errors(SIMDData1.at("sizes"), SIMDData1.at("gflops")),
+			let u = data.map(x=>x.at(0)),
+			let mean = data.map(x=>x.at(1)),
+			let stderr = data.map(x=>x.at(2)),
+			let ys = data.map(x=>x.at(3)),
+			lq.plot(
+				u,
+				mean,
+				stroke: none,
+				mark-size: 0pt,
+				yerr: stderr,
+				z-index: 10,
+				color: black
+			),
+			lq.scatter((), (), color:blue, size: 0.2in, label: [Stride=1]),
+			let xs = u.zip(ys).map((x)=>range(x.at(1).len()).map(_=>x.at(0))).flatten(),
+			lq.scatter(
+				xs,
+				ys.flatten(),
+				color:blue
+			),
+			let (slope1, intercept1, r_squared1) = statastic.arrayLinearRegression(xs, ys.flatten()).values(),
+			// 2
+			let data = bin-errors(SIMDData2.at("sizes"), SIMDData2.at("gflops")),
+			let u = data.map(x=>x.at(0)),
+			let mean = data.map(x=>x.at(1)),
+			let stderr = data.map(x=>x.at(2)),
+			let ys = data.map(x=>x.at(3)),
+			lq.plot(
+				u,
+				mean,
+				stroke: none,
+				mark-size: 0pt,
+				yerr: stderr,
+				z-index: 10,
+				color: black
+			),
+			lq.scatter((), (), color:orange, size: 0.2in, label: [Stride=2]),
+			let xs = u.zip(ys).map((x)=>range(x.at(1).len()).map(_=>x.at(0))).flatten(),
+			lq.scatter(
+				xs,
+				ys.flatten(),
+				color:orange
+			),
+			let (slope2, intercept2, r_squared2) = statastic.arrayLinearRegression(xs, ys.flatten()).values(),
+			// 4
+			let data = bin-errors(SIMDData3.at("sizes"), SIMDData3.at("gflops")),
+			let u = data.map(x=>x.at(0)),
+			let mean = data.map(x=>x.at(1)),
+			let stderr = data.map(x=>x.at(2)),
+			let ys = data.map(x=>x.at(3)),
+			lq.plot(
+				u,
+				mean,
+				stroke: none,
+				mark-size: 0pt,
+				yerr: stderr,
+				z-index: 10,
+				color: black
+			),
+			lq.scatter((), (), color:green, size: 0.2in, label: [Stride=4]),
+			let xs = u.zip(ys).map((x)=>range(x.at(1).len()).map(_=>x.at(0))).flatten(),
+			lq.scatter(
+				xs,
+				ys.flatten(),
+				color:green
+			),
+			let (slope3, intercept3, r_squared3) = statastic.arrayLinearRegression(xs, ys.flatten()).values(),
+			// 8
+			let data = bin-errors(SIMDData4.at("sizes"), SIMDData4.at("gflops")),
+			let u = data.map(x=>x.at(0)),
+			let mean = data.map(x=>x.at(1)),
+			let stderr = data.map(x=>x.at(2)),
+			let ys = data.map(x=>x.at(3)),
+			lq.plot(
+				u,
+				mean,
+				stroke: none,
+				mark-size: 0pt,
+				yerr: stderr,
+				z-index: 10,
+				color: black
+			),
+			lq.scatter((), (), color:yellow, size: 0.2in, label: [Stride=8 (NOT SIMD)]),
+			let xs = u.zip(ys).map((x)=>range(x.at(1).len()).map(_=>x.at(0))).flatten(),
+			lq.scatter(
+				xs,
+				ys.flatten(),
+				color:yellow
+			),
+			let (slope4, intercept4, r_squared4) = statastic.arrayLinearRegression(xs, ys.flatten()).values(),
+		)\
+		#align(left)[
+			$
+			"Stride=1: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope1)\
+			"Stride=2: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope2)\
+			"Stride=4: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope3)\
+			"Stride=8: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope4)\
+			$
+		]
+	]
+}}))
 #let printGFLOPS(item) = align(center, block(breakable:false,  {
 	let SIMDData = data.at(item)
+	let SIMDDataRemoveOtherFlags = data.at(item.replace("_USE_DOUBLE", "").replace("_DO_MISSALIGNMENT", "").replace("_DO_ODD_SIZE", ""))
+	let flags = ""
+	let nflags = ""
+	if (item.contains("_USE_DOUBLE")) {
+		flags += "Double"
+		nflags += "Float"
+	}
+	if (item.contains("_DO_MISSALIGNMENT")) {
+		if (flags.len() != 0) {
+			flags += ", "
+			nflags += ", "
+		}
+		flags += "Misaligned"
+		nflags += "Aligned"
+	}
+	if (item.contains("_DO_ODD_SIZE")) {
+		if (flags.len() != 0) {
+			flags += ", "
+			nflags += ", "
+		}
+		flags += "Odd Length"
+		nflags += "SIMD Aligned Length"
+	}
 	[
-		= #item.replace("_SIMD", "").replace("_DO_", ",_").replace("_STRIDE=1", "").replace("STRIDE=", ",_=").replace("_USE_", ",_").split("_").map(x=>" "+ x.at(0) + lower(x.slice(1))).join() #v(0cm)
+		= #item.replace("_USE_DOUBLE", "").replace("_DO_MISSALIGNMENT", "").replace("_DO_ODD_SIZE", "").replace("_SIMD", "").replace("_DO_", ",_").replace("_STRIDE=1", "").replace("STRIDE=", ",_=").replace("_USE_", ",_").split("_").map(x=>" "+ x.at(0) + lower(x.slice(1))).join():\ #flags vs #nflags #v(0cm)
 		#lq.diagram(
 			xscale: lq.scale.log(base: 2),
 			yscale: lq.scale.log(base: 2),
@@ -279,6 +539,7 @@
 			ylabel: [GFLOPS],
 			xaxis: (auto-exponent-threshold: 0),
 			yaxis: (auto-exponent-threshold: 0),
+			// with flags
 			let data = bin-errors(SIMDData.at("sizes"), SIMDData.at("gflops")),
 			let u = data.map(x=>x.at(0)),
 			let mean = data.map(x=>x.at(1)),
@@ -293,24 +554,48 @@
 				z-index: 10,
 				color: black
 			),
-			lq.scatter((), (), color:blue, size: 0.2in, label: [SIMD]),
+			lq.scatter((), (), color:blue, size: 0.2in, label: [#flags]),
 			let xs = u.zip(ys).map((x)=>range(x.at(1).len()).map(_=>x.at(0))).flatten(),
 			lq.scatter(
 				xs,
 				ys.flatten(),
 				color:blue
 			),
-			let (slope, intercept, r_squared) = statastic.arrayLinearRegression(xs, ys.flatten()),
+			let (slope1, intercept, r_squared) = statastic.arrayLinearRegression(xs, ys.flatten()).values(),
 			// lq.line(
 			// 	stroke: (paint: blue),
 			// 	(lq.cmin(u), lq.cmin(mean)),
 			// 	(lq.cmax(xs), slope*lq.cmax(xs)),
 			// 	clip: true
 			// )
+			// without flags
+			let data = bin-errors(SIMDDataRemoveOtherFlags.at("sizes"), SIMDDataRemoveOtherFlags.at("gflops")),
+			let u = data.map(x=>x.at(0)),
+			let mean = data.map(x=>x.at(1)),
+			let stderr = data.map(x=>x.at(2)),
+			let ys = data.map(x=>x.at(3)),
+			lq.plot(
+				u,
+				mean,
+				stroke: none,
+				mark-size: 0pt,
+				yerr: stderr,
+				z-index: 10,
+				color: black
+			),
+			lq.scatter((), (), color:orange, size: 0.2in, label: [#nflags]),
+			let xs = u.zip(ys).map((x)=>range(x.at(1).len()).map(_=>x.at(0))).flatten(),
+			lq.scatter(
+				xs,
+				ys.flatten(),
+				color:orange
+			),
+			let (slope2, intercept, r_squared) = statastic.arrayLinearRegression(xs, ys.flatten()).values(),
 		)\
 		#align(left)[
 			$
-			"With SIMD: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope)\
+			"With SIMD: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope1)\
+			"With SIMD: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope2)\
 			$
 		]
 	]
@@ -327,23 +612,24 @@
 #set page(
 	margin: 0.1in,
 	width: 5in,
-	height: 4.3in
+	height: 5.3in
 )
 #for item in data {
 	if (item.at(0).contains("SIMD")) {
 		if (item.at(0).contains("DO_MISSALIGNMENT") or item.at(0).contains("ODD_SIZE")) {
-			if (item.at(0).len() > 52) {
-				set page(
-					margin: 0.1in,
-					width: 5in,
-					height: 4.6in
-				)
-				// print(item.at(0))
-				printGFLOPS(item.at(0))
-			} else {
-				// print(item.at(0))
-				printGFLOPS(item.at(0))
-			}
+			printGFLOPS(item.at(0))
+		}
+	}
+}
+#set page(
+	margin: 0.1in,
+	width: 5in,
+	height: 5.9in
+)
+#for item in data {
+	if (item.at(0).contains("SIMD")) {
+		if (item.at(0).contains("_STRIDE=2")) {
+			printGFLOPS_STRIDE(item.at(0))
 		}
 	}
 }

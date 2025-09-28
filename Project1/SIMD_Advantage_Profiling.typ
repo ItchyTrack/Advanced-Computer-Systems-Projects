@@ -87,28 +87,55 @@
 
 #pagebreak()
 = Scalar vs Auto-Vectorized #label("Scalar vs Auto-Vectorized")
-
+#align(center)[
 #box(width: 3in)[
-	\
 	#image("pngImages/GF_Dot_Product.png", width: 3in)
 ]
 #box(width: 3in)[
-	\
 	#image("pngImages/GF_Elementwise_Multiply.png",  width: 3in)
 ]
 #box(width: 3in)[
-	\
 	#image("pngImages/GF_Saxpy.png", width: 3in)
 ]
 #box(width: 3in)[
-	\
 	#image("pngImages/GF_Stencil.png", width: 3in)
+]
 ]
 #pagebreak()
 = Alignment & Tail Handling #label("Alignment & Tail Handling")
-
+#align(center)[
+#box(width: 3in)[
+	#image("pngImages/GF_Dot_Product_Misaligned_vs_Aligned.png", width: 3in)
+]
+#box(width: 3in)[
+	#image("pngImages/GF_Elementwise_Multiply_Misaligned_vs_Aligned.png",  width: 3in)
+]
+#box(width: 3in)[
+	#image("pngImages/GF_Saxpy_Misaligned_vs_Aligned.png", width: 3in)
+]
+#box(width: 3in)[
+	#image("pngImages/GF_Stencil_Misaligned_vs_Aligned.png", width: 3in)
+]
+]
 #pagebreak()
 = Stride / Gather Effects #label("Stride / Gather Effects")
+In all cases we see that increasing the stride decrease the effectivnness of using SIMD instructions. I belive this is because the cpu has to first align the floats and then run them through SIMD instructions.
+
+Its also worth noting that when taking Strides of 8 the Elementwise Multiply and Saxpy did not compile with SIMD instructions. This may be because the compile thought the the alignment would cost more than the SIMD instructions would save. We can see this in the data because the amount of GFLOP/S loss when to a stride of 8 in Elementwise Multiply and Saxpy is similar to the loss in Dot Product and Stencil.
+#align(center)[
+#box(width: 3in)[
+	#image("pngImages/GF_Dot_Product_Strides_1_2_4_8.png", width: 2in)
+]
+#box(width: 3in)[
+	#image("pngImages/GF_Elementwise_Multiply_Strides_1_2_4_8.png",  width: 2in)
+]
+#box(width: 3in)[
+	#image("pngImages/GF_Saxpy_Strides_1_2_4_8.png", width: 2in)
+]
+#box(width: 3in)[
+	#image("pngImages/GF_Stencil_Strides_1_2_4_8.png", width: 2in)
+]
+]
 #pagebreak()
 = Data Type Comparison #label("Data Type Comparison")
 #pagebreak()
