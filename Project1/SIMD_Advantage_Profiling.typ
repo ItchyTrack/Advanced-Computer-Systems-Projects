@@ -87,8 +87,26 @@
 
 #pagebreak()
 = Scalar vs Auto-Vectorized #label("Scalar vs Auto-Vectorized")
+
+#box(width: 3in)[
+	\
+	#image("pngImages/GF_Dot_Product.png", width: 3in)
+]
+#box(width: 3in)[
+	\
+	#image("pngImages/GF_Elementwise_Multiply.png",  width: 3in)
+]
+#box(width: 3in)[
+	\
+	#image("pngImages/GF_Saxpy.png", width: 3in)
+]
+#box(width: 3in)[
+	\
+	#image("pngImages/GF_Stencil.png", width: 3in)
+]
 #pagebreak()
 = Alignment & Tail Handling #label("Alignment & Tail Handling")
+
 #pagebreak()
 = Stride / Gather Effects #label("Stride / Gather Effects")
 #pagebreak()

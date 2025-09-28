@@ -12,13 +12,6 @@
 	13pt
 )
 
-// #align(center,
-// 	[
-// 		#text([*SIMD Advantage Profiling*], size:20pt)\
-// 		#text([Ben Herman], size:15pt)
-// 	]
-// )
-
 #let data = json("performance_summary2.json")
 
 #let arrayMedian(arr, backupValue) = {
@@ -134,8 +127,8 @@
 		)\
 		#align(left)[
 			$
-			"With SIMD: " & ("arraySize")*#strfmt("({0:.4e})", slope1)\
-			"Without SIMD: " & ("arraySize")*#strfmt("({0:.4e})", slope2)\
+			"With SIMD: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope1)\
+			"Without SIMD: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope2)\
 			$
 		]
 		Speedup: #{slope2/slope1}
@@ -185,7 +178,7 @@
 		)\
 		#align(left)[
 			$
-			"With SIMD: " & ("arraySize")*#strfmt("({0:.4e})", slope)\
+			"With SIMD: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope)\
 			$
 		]
 	]
@@ -266,8 +259,8 @@
 		)\
 		#align(left)[
 			$
-			"With SIMD: " & ("arraySize")*#strfmt("({0:.4e})", slope1)\
-			"Without SIMD: " & ("arraySize")*#strfmt("({0:.4e})", slope2)\
+			"With SIMD: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope1)\
+			"Without SIMD: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope2)\
 			$
 		]
 		Speedup: #{slope2/slope1}
@@ -317,7 +310,7 @@
 		)\
 		#align(left)[
 			$
-			"With SIMD: " & ("arraySize")*#strfmt("({0:.4e})", slope)\
+			"With SIMD: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope)\
 			$
 		]
 	]
