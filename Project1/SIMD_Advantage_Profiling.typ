@@ -84,7 +84,7 @@
 - OS: Sequoia 15.6
 - Powersource: Wall outlet
 - Ram: 16 GB
-- Temperature: \~65#sym.degree Fahrenheit
+- Room Temperature: \~65#sym.degree Fahrenheit
 
 #pagebreak()
 = Scalar vs Auto-Vectorized #label("Scalar vs Auto-Vectorized")
@@ -114,7 +114,9 @@ This first drop happens when the data is larger than L1 cache which 64 KB. The s
 
 #pagebreak()
 = Alignment & Tail Handling #label("Alignment & Tail Handling")
-
+This is split between shifting the starting pointer and changing the length of the array. In both cases the compiler was still able to use SIMD.
+\ \ \ \ \
+When the array did not start at the start of the allocations the performance was slightly worse but orverall the missalignment did not effects the speed very much.
 #align(center)[#block(width: 8in)[
 #box(width: 3in)[
 	#image("pngImages/GF_Dot_Product_Misaligned_vs_Aligned.png", width: 100%)
@@ -127,6 +129,22 @@ This first drop happens when the data is larger than L1 cache which 64 KB. The s
 ]
 #box(width: 3in)[
 	#image("pngImages/GF_Stencil_Misaligned_vs_Aligned.png", width: 100%)
+]
+]]
+#pagebreak()
+When the arrays length was not a multiple of the SIMD register's width (4 floats, 16 bytes) the speed was not effected noticeably. This is because the compiler was able to just put a small piece of code that corrected the last elements not fitting in the SIMD register.
+#align(center)[#block(width: 8in)[
+#box(width: 3in)[
+	#image("pngImages/GF_Dot_Product_Odd_Length_vs_SIMD_Aligned_Length.png", width: 100%)
+]
+#box(width: 3in)[
+	#image("pngImages/GF_Elementwise_Multiply_Odd_Length_vs_SIMD_Aligned_Length.png", width: 100%)
+]\
+#box(width: 3in)[
+	#image("pngImages/GF_Saxpy_Odd_Length_vs_SIMD_Aligned_Length.png", width: 100%)
+]
+#box(width: 3in)[
+	#image("pngImages/GF_Stencil_Odd_Length_vs_SIMD_Aligned_Length.png", width: 100%)
 ]
 ]]
 #pagebreak()
