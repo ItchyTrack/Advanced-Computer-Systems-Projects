@@ -110,7 +110,7 @@ With no SIMD the GFLOPS is most constant with a very slight trend downward which
 
 With SIMD the GFLOPS has changes in the same way for all tests. First its very noisy due to the small work load. Then at $2^12$ (16,384 bytes) it starts looking stable. From 2^14 (65,536 bytes) to 2^20 (4,194,304 bytes) GFLOPS decreases slowly. Right after that the graph drops a lot.
 
-This first drop happens when the data is larger than L1 cache which 64 KB. The second larger drop it happens when the data is larger than L2 cache 4 MB
+This first drop happens when the data is larger than L1 cache which 64 KB. The second larger drop it happens when the data is larger than L2 cache 4 MB.
 
 #pagebreak()
 = Alignment & Tail Handling #label("Alignment & Tail Handling")
