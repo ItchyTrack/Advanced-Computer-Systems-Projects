@@ -3,9 +3,9 @@
 #import "@preview/statastic:1.0.0"
 
 #set page(
-	margin: 0.1in,
-	width: 5in,
-	height: 5in
+	margin: 0.05in,
+	width: 4.5in,
+	height: 4.5in
 )
 
 #set text(
@@ -168,7 +168,7 @@
 				ys.flatten(),
 				color:blue
 			),
-			let (slope, intercept, r_squared) = statastic.arrayLinearRegression(xs, ys.flatten()),
+			let (a1, b1, c1, r_squared) = statastic.arrayLinearRegression(xs, ys.flatten()),
 			lq.line(
 				stroke: (paint: blue),
 				(lq.cmin(u), lq.cmin(mean)),
@@ -178,7 +178,7 @@
 		)\
 		#align(left)[
 			$
-			"With SIMD: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope)\
+			"With SIMD: " & "GFLOPS"=#strfmt("{0:.3e}*", a1)"S"^2+#strfmt("{0:.3e}*", b1)"S"+#strfmt("{0:.3e}*", c1)\
 			$
 		]
 	]
@@ -204,6 +204,7 @@
 			let mean = data.map(x=>x.at(1)),
 			let stderr = data.map(x=>x.at(2)),
 			let ys = data.map(x=>x.at(3)),
+			let ysS = ys,
 			lq.plot(
 				u,
 				mean,
@@ -220,12 +221,12 @@
 				ys.flatten(),
 				color:blue
 			),
-			let (slope1, intercept1, r_squared1) = statastic.arrayLinearRegression(xs, ys.flatten()).values(),
-			// lq.line(
-			// 	stroke: (paint: blue),
-			// 	(lq.cmin(u), lq.cmin(mean)),
-			// 	(lq.cmax(u), slope1*lq.cmax(u)),
-			// 	clip: true
+			// let (a1, b1, r_squared1) = statastic.arrayLogarithmicRegression(xs, ys.flatten()).values(),
+			// lq.plot(
+			// 	mark: none,
+			// 	color:blue,
+			// 	range(0, 1000).map(x => x/ 1000 * (lq.cmax(u) - lq.cmin(u)) + lq.cmin(u)),
+			// 	(range(0, 1000).map(x => x/ 1000 * (lq.cmax(u) - lq.cmin(u)) + lq.cmin(u))).map(x => a1 + b1 * calc.ln(x))
 			// ),
 			// notSIMDData
 			let data = bin-errors(notSIMDData.at("sizes"), notSIMDData.at("gflops")),
@@ -249,21 +250,21 @@
 				ys.flatten(),
 				color:orange
 			),
-			let (slope2, intercept2, r_squared2) = statastic.arrayLinearRegression(xs, ys.flatten()).values(),
-			// lq.line(
-			// 	stroke: (paint: orange),
-			// 	(lq.cmin(u), lq.cmin(mean)),
-			// 	(lq.cmax(u), slope2*lq.cmax(u)),
-			// 	clip: true
-			// )
+			// let (a2, b2, r_squared2) = statastic.arrayPowerRegression(xs, ys.flatten()).values(),
+			// lq.plot(
+			// 	mark: none,
+			// 	color:orange,
+			// 	range(0, 1000).map(x => x/ 1000 * (lq.cmax(u) - lq.cmin(u)) + lq.cmin(u)),
+			// 	(range(0, 1000).map(x => x/ 1000 * (lq.cmax(u) - lq.cmin(u)) + lq.cmin(u))).map(x => a2 * calc.pow(x, b2))
+			// ),
 		)\
-		#align(left)[
-			$
-			"With SIMD: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope1)\
-			"Without SIMD: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope2)\
-			$
-		]
-		Speedup: #{slope2/slope1}
+		// #align(left)[
+			// $
+			// "With SIMD: " & "GFLOPS"=#strfmt("{0:.3e}*", a1)"S"^2+#strfmt("{0:.3e}*", b1)"S"+#strfmt("{0:.3e}", c1)\
+			// "Without SIMD: " & "GFLOPS"=#strfmt("{0:.3e}*", a2)"S"^2+#strfmt("{0:.3e}*", b2)"S"+#strfmt("{0:.3e}", c2)
+			// $\
+		// ]
+		Speedup: #{statastic.arrayAvg(ysS.flatten())/statastic.arrayAvg(ys.flatten())}
 	]
 }))
 #let printGFLOPS_STRIDE(item) = align(center, block(breakable:false,  {
@@ -306,7 +307,7 @@
 				ys.flatten(),
 				color:blue
 			),
-			let (slope1, intercept1, r_squared1) = statastic.arrayLinearRegression(xs, ys.flatten()).values(),
+			// let (a1, b1, c1, r_squared1) = statastic.arrayQuadraticRegression(xs, ys.flatten()).values(),
 			// 2
 			let data = bin-errors(SIMDData2.at("sizes"), SIMDData2.at("gflops")),
 			let u = data.map(x=>x.at(0)),
@@ -329,7 +330,7 @@
 				ys.flatten(),
 				color:orange
 			),
-			let (slope2, intercept2, r_squared2) = statastic.arrayLinearRegression(xs, ys.flatten()).values(),
+			// let (a2, b2, c2, r_squared2) = statastic.arrayQuadraticRegression(xs, ys.flatten()).values(),
 			// 4
 			let data = bin-errors(SIMDData3.at("sizes"), SIMDData3.at("gflops")),
 			let u = data.map(x=>x.at(0)),
@@ -352,7 +353,7 @@
 				ys.flatten(),
 				color:green
 			),
-			let (slope3, intercept3, r_squared3) = statastic.arrayLinearRegression(xs, ys.flatten()).values(),
+			// let (a3, b3, c3, r_squared3) = statastic.arrayQuadraticRegression(xs, ys.flatten()).values(),
 			// 8
 			let data = bin-errors(SIMDData4.at("sizes"), SIMDData4.at("gflops")),
 			let u = data.map(x=>x.at(0)),
@@ -375,16 +376,16 @@
 				ys.flatten(),
 				color:yellow
 			),
-			let (slope4, intercept4, r_squared4) = statastic.arrayLinearRegression(xs, ys.flatten()).values(),
+			// let (a4, b4, c4, r_squared4) = statastic.arrayQuadraticRegression(xs, ys.flatten()).values(),
 		)\
-		#align(left)[
-			$
-			"Stride=1: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope1)\
-			"Stride=2: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope2)\
-			"Stride=4: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope3)\
-			"Stride=8: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope4)\
-			$
-		]
+		// #align(left)[
+		// 	$
+		// 	"Stride=1: " & "GFLOPS"=#strfmt("{0:.3e}*", a1)"S"^2+#strfmt("{0:.3e}*", b1)"S"+#strfmt("{0:.3e}*", c1)\
+		// 	"Stride=2: " & "GFLOPS"=#strfmt("{0:.3e}*", a2)"S"^2+#strfmt("{0:.3e}*", b2)"S"+#strfmt("{0:.3e}*", c2)\
+		// 	"Stride=4: " & "GFLOPS"=#strfmt("{0:.3e}*", a3)"S"^2+#strfmt("{0:.3e}*", b3)"S"+#strfmt("{0:.3e}*", c3)\
+		// 	"Stride=8: " & "GFLOPS"=#strfmt("{0:.3e}*", a4)"S"^2+#strfmt("{0:.3e}*", b4)"S"+#strfmt("{0:.3e}*", c4)\
+		// 	$
+		// ]
 	]
 	} else {
 		let SIMDData4 = data.at(item.replace("_STRIDE=2", "_STRIDE=8").replace("_SIMD", "_no-vectorize"))
@@ -422,7 +423,7 @@
 				ys.flatten(),
 				color:blue
 			),
-			let (slope1, intercept1, r_squared1) = statastic.arrayLinearRegression(xs, ys.flatten()).values(),
+			// let (a1, b1, c1, r_squared1) = statastic.arrayQuadraticRegression(xs, ys.flatten()).values(),
 			// 2
 			let data = bin-errors(SIMDData2.at("sizes"), SIMDData2.at("gflops")),
 			let u = data.map(x=>x.at(0)),
@@ -445,7 +446,7 @@
 				ys.flatten(),
 				color:orange
 			),
-			let (slope2, intercept2, r_squared2) = statastic.arrayLinearRegression(xs, ys.flatten()).values(),
+			// let (a2, b2, c2, r_squared2) = statastic.arrayQuadraticRegression(xs, ys.flatten()).values(),
 			// 4
 			let data = bin-errors(SIMDData3.at("sizes"), SIMDData3.at("gflops")),
 			let u = data.map(x=>x.at(0)),
@@ -468,7 +469,7 @@
 				ys.flatten(),
 				color:green
 			),
-			let (slope3, intercept3, r_squared3) = statastic.arrayLinearRegression(xs, ys.flatten()).values(),
+			// let (a3, b3, c3, r_squared3) = statastic.arrayQuadraticRegression(xs, ys.flatten()).values(),
 			// 8
 			let data = bin-errors(SIMDData4.at("sizes"), SIMDData4.at("gflops")),
 			let u = data.map(x=>x.at(0)),
@@ -491,16 +492,16 @@
 				ys.flatten(),
 				color:yellow
 			),
-			let (slope4, intercept4, r_squared4) = statastic.arrayLinearRegression(xs, ys.flatten()).values(),
+			// let (a4, b4, c4, r_squared4) = statastic.arrayQuadraticRegression(xs, ys.flatten()).values(),
 		)\
-		#align(left)[
-			$
-			"Stride=1: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope1)\
-			"Stride=2: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope2)\
-			"Stride=4: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope3)\
-			"Stride=8: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope4)\
-			$
-		]
+		// #align(left)[
+		// 	$
+		// 	"Stride=1: " & "GFLOPS"=#strfmt("{0:.3e}*", a1)"S"^2+#strfmt("{0:.3e}*", b1)"S"+#strfmt("{0:.3e}*", c1)\
+		// 	"Stride=2: " & "GFLOPS"=#strfmt("{0:.3e}*", a2)"S"^2+#strfmt("{0:.3e}*", b2)"S"+#strfmt("{0:.3e}*", c2)\
+		// 	"Stride=4: " & "GFLOPS"=#strfmt("{0:.3e}*", a3)"S"^2+#strfmt("{0:.3e}*", b3)"S"+#strfmt("{0:.3e}*", c3)\
+		// 	"Stride=8: " & "GFLOPS"=#strfmt("{0:.3e}*", a4)"S"^2+#strfmt("{0:.3e}*", b4)"S"+#strfmt("{0:.3e}*", c4)\
+		// 	$
+		// ]
 	]
 }}))
 #let printGFLOPS(item) = align(center, block(breakable:false,  {
@@ -545,6 +546,7 @@
 			let mean = data.map(x=>x.at(1)),
 			let stderr = data.map(x=>x.at(2)),
 			let ys = data.map(x=>x.at(3)),
+			let ysS = ys,
 			lq.plot(
 				u,
 				mean,
@@ -561,7 +563,7 @@
 				ys.flatten(),
 				color:blue
 			),
-			let (slope1, intercept, r_squared) = statastic.arrayLinearRegression(xs, ys.flatten()).values(),
+			// let (a2, b2, c2, r_squared) = statastic.arrayQuadraticRegression(xs, ys.flatten()).values(),
 			// lq.line(
 			// 	stroke: (paint: blue),
 			// 	(lq.cmin(u), lq.cmin(mean)),
@@ -590,14 +592,14 @@
 				ys.flatten(),
 				color:orange
 			),
-			let (slope2, intercept, r_squared) = statastic.arrayLinearRegression(xs, ys.flatten()).values(),
+			// let (a, b, c, r_squared) = statastic.arrayQuadraticRegression(xs, ys.flatten()).values(),
 		)\
-		#align(left)[
-			$
-			"With SIMD: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope1)\
-			"With SIMD: " & "GFLOPS"=("arraySize")*#strfmt("({0:.4e})", slope2)\
-			$
-		]
+		// #align(left)[
+		// 	$
+		// 	#flags": " & "GFLOPS"=#strfmt("{0:.3e}*", a)"S"^2+#strfmt("{0:.3e}*", b)"S"+#strfmt("{0:.3e}*", c)\
+		// 	#nflags": " & "GFLOPS"=#strfmt("{0:.3e}*", a2)"S"^2+#strfmt("{0:.3e}*", b2)"S"+#strfmt("{0:.3e}*", c2)\
+		// 	$
+		// ]
 	]
 }))
 
@@ -609,23 +611,13 @@
 		}
 	}
 }
-#set page(
-	margin: 0.1in,
-	width: 5in,
-	height: 5.3in
-)
 #for item in data {
 	if (item.at(0).contains("SIMD")) {
-		if (item.at(0).contains("DO_MISSALIGNMENT") or item.at(0).contains("ODD_SIZE")) {
+		if (item.at(0).contains("DO_MISSALIGNMENT") or item.at(0).contains("ODD_SIZE") or item.at(0).contains("USE_DOUBLE")) {
 			printGFLOPS(item.at(0))
 		}
 	}
 }
-#set page(
-	margin: 0.1in,
-	width: 5in,
-	height: 5.9in
-)
 #for item in data {
 	if (item.at(0).contains("SIMD")) {
 		if (item.at(0).contains("_STRIDE=2")) {

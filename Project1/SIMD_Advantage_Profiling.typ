@@ -28,6 +28,7 @@
 #move(dx:10mm)[
 #tableContentItem("Experiment Setup")\
 #tableContentItem("Scalar vs Auto-Vectorized")\
+#tableContentItem("Locality Sweep")\
 #tableContentItem("Alignment & Tail Handling")\
 #tableContentItem("Stride / Gather Effects")\
 #tableContentItem("Data Type Comparison")\
@@ -87,57 +88,83 @@
 
 #pagebreak()
 = Scalar vs Auto-Vectorized #label("Scalar vs Auto-Vectorized")
-#align(center)[
+When using SIMD instructions the code did more GFLOPS than the when not using SIMD instructions. The Dot Product test did the most GFLOPS till the array got bigger than $2^21$ which then the Stencil test did the most GFLOPS. The Elementwise Multiply test did the least GFLOPS with the Saxpy test doing roughly 2 times the number of GFLOPS.
+#align(center)[#block(width: 8in)[
 #box(width: 3in)[
-	#image("pngImages/GF_Dot_Product.png", width: 3in)
-]
-#box(width: 3in)[
-	#image("pngImages/GF_Elementwise_Multiply.png",  width: 3in)
+	#image("pngImages/GF_Dot_Product.png", width: 100%)
 ]
 #box(width: 3in)[
-	#image("pngImages/GF_Saxpy.png", width: 3in)
+	#image("pngImages/GF_Elementwise_Multiply.png", width: 100%)
 ]
 #box(width: 3in)[
-	#image("pngImages/GF_Stencil.png", width: 3in)
+	#image("pngImages/GF_Saxpy.png", width: 100%)
 ]
+#box(width: 3in)[
+	#image("pngImages/GF_Stencil.png", width: 100%)
 ]
+]]
+= Locality Sweep #label("Locality Sweep")
+The Scalar vs Auto-Vectorized test is also good for looking at the how array size effects the speed. For array sizes under $2^12$ the data is very noisy due to the small anount of work.
+
+With no SIMD the GFLOPS is most constant with a very slight trend downward which is probably due to the cache not being quite fast enough to keep up with the CPU.
+
+With SIMD the GFLOPS has changes in the same way for all tests. First its very noisy due to the small work load. Then at $2^12$ (16,384 bytes) it starts looking stable. From 2^14 (65,536 bytes) to 2^20 (4,194,304 bytes) GFLOPS decreases slowly. Right after that the graph drops a lot.
+
+This first drop happens when the data is larger than L1 cache which 64 KB. The second larger drop it happens when the data is larger than L2 cache 4 MB
+
 #pagebreak()
 = Alignment & Tail Handling #label("Alignment & Tail Handling")
-#align(center)[
+
+#align(center)[#block(width: 8in)[
 #box(width: 3in)[
-	#image("pngImages/GF_Dot_Product_Misaligned_vs_Aligned.png", width: 3in)
-]
-#box(width: 3in)[
-	#image("pngImages/GF_Elementwise_Multiply_Misaligned_vs_Aligned.png",  width: 3in)
+	#image("pngImages/GF_Dot_Product_Misaligned_vs_Aligned.png", width: 100%)
 ]
 #box(width: 3in)[
-	#image("pngImages/GF_Saxpy_Misaligned_vs_Aligned.png", width: 3in)
+	#image("pngImages/GF_Elementwise_Multiply_Misaligned_vs_Aligned.png", width: 100%)
 ]
 #box(width: 3in)[
-	#image("pngImages/GF_Stencil_Misaligned_vs_Aligned.png", width: 3in)
+	#image("pngImages/GF_Saxpy_Misaligned_vs_Aligned.png", width: 100%)
 ]
+#box(width: 3in)[
+	#image("pngImages/GF_Stencil_Misaligned_vs_Aligned.png", width: 100%)
 ]
+]]
 #pagebreak()
 = Stride / Gather Effects #label("Stride / Gather Effects")
 In all cases we see that increasing the stride decrease the effectivnness of using SIMD instructions. I belive this is because the cpu has to first align the floats and then run them through SIMD instructions.
 
 Its also worth noting that when taking Strides of 8 the Elementwise Multiply and Saxpy did not compile with SIMD instructions. This may be because the compile thought the the alignment would cost more than the SIMD instructions would save. We can see this in the data because the amount of GFLOP/S loss when to a stride of 8 in Elementwise Multiply and Saxpy is similar to the loss in Dot Product and Stencil.
-#align(center)[
+#align(center)[#block(width: 8in)[
 #box(width: 3in)[
-	#image("pngImages/GF_Dot_Product_Strides_1_2_4_8.png", width: 2in)
-]
-#box(width: 3in)[
-	#image("pngImages/GF_Elementwise_Multiply_Strides_1_2_4_8.png",  width: 2in)
+	#image("pngImages/GF_Dot_Product_Strides_1_2_4_8.png", width: 100%)
 ]
 #box(width: 3in)[
-	#image("pngImages/GF_Saxpy_Strides_1_2_4_8.png", width: 2in)
+	#image("pngImages/GF_Elementwise_Multiply_Strides_1_2_4_8.png", width: 100%)
 ]
 #box(width: 3in)[
-	#image("pngImages/GF_Stencil_Strides_1_2_4_8.png", width: 2in)
+	#image("pngImages/GF_Saxpy_Strides_1_2_4_8.png", width: 100%)
 ]
+#box(width: 3in)[
+	#image("pngImages/GF_Stencil_Strides_1_2_4_8.png", width: 100%)
 ]
+]]
 #pagebreak()
 = Data Type Comparison #label("Data Type Comparison")
+Using doubles instead of floats was twice as slow. This make sense because double SIMD instructions only operate on 2 numbers at a time opposed to float SIMD instructions with operate on 4 numbers at a time.
+#align(center)[#block(width: 8in)[
+#box(width: 3in)[
+	#image("pngImages/GF_Dot_Product_Double_vs_Float.png", width: 100%)
+]
+#box(width: 3in)[
+	#image("pngImages/GF_Elementwise_Multiply_Double_vs_Float.png", width: 100%)
+]
+#box(width: 3in)[
+	#image("pngImages/GF_Saxpy_Double_vs_Float.png", width: 100%)
+]
+#box(width: 3in)[
+	#image("pngImages/GF_Stencil_Double_vs_Float.png", width: 100%)
+]
+]]
 #pagebreak()
 = Vectorization Verification #label("Vectorization Verification")
 To do verify that the code is using SIMD instructions I dumped the assembly to a file with the command `objdump -d file`. Then I used python to search through the file for strings like (#h(3mm)`fmul.`#h(3mm)`fadd.`#h(3mm)`fmla.`#h(3mm)). These strings are a floating point operation followed by a dot. The actual instructions are `fmul.4` or `fmul.2` which are for single precision and double precision floating point respectively.
