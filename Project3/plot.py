@@ -12,13 +12,13 @@ os.makedirs(PLOTS_DIR, exist_ok=True)
 # ---------------------------
 # Load data
 # ---------------------------
-zero_qd = pd.read_csv(os.path.join(RESULTS_DIR, "zero_qd_expanded.csv"))
-block_sweep = pd.read_csv(os.path.join(RESULTS_DIR, "block_sweep_expanded.csv"))
-mix_data = pd.read_csv(os.path.join(RESULTS_DIR, "mix_sweep_expanded.csv"))
-qd_sweep = pd.read_csv(os.path.join(RESULTS_DIR, "qd_sweep_expanded.csv"))
-tail_latency = pd.read_csv(os.path.join(RESULTS_DIR, "tail_latency_expanded.csv"))
+zero_qd = pd.read_csv(os.path.join(RESULTS_DIR, "zero_qd.csv"))
+block_sweep = pd.read_csv(os.path.join(RESULTS_DIR, "block_sweep.csv"))
+mix_data = pd.read_csv(os.path.join(RESULTS_DIR, "mix_sweep.csv"))
+qd_sweep = pd.read_csv(os.path.join(RESULTS_DIR, "qd_sweep.csv"))
+tail_latency = pd.read_csv(os.path.join(RESULTS_DIR, "tail_latency.csv"))
 seq_timeseries = pd.read_csv(os.path.join(RESULTS_DIR, "seq_write_timeseries.csv"))
-qd_timeseries = pd.read_csv(os.path.join(RESULTS_DIR, "qd_timeseries_expanded.csv"))
+qd_timeseries = pd.read_csv(os.path.join(RESULTS_DIR, "qd_timeseries.csv"))
 summary = pd.read_csv(os.path.join(RESULTS_DIR, "summary_overview.csv"))
 
 # ---------------------------
@@ -137,27 +137,49 @@ plt.close()
 # ---------------------------
 # 7. Queue-depth time-series
 # ---------------------------
-qd_grouped_ts = qd_timeseries.groupby("time_s").agg({"iops":["mean","std"], "lat_us":["mean","std"]})
-fig, ax1 = plt.subplots(figsize=(8,4))
+qd_ts_grouped = qd_timeseries.groupby("iodepth").agg({
+    "iops": ["mean","std"],
+    "throughput_MBps": ["mean","std"],
+    "latency_avg_us": ["mean","std"]
+})
+
+fig, ax1 = plt.subplots(figsize=(7,5))
 ax2 = ax1.twinx()
-ax1.plot(qd_grouped_ts.index, qd_grouped_ts["iops"]["mean"], color='blue', label='IOPS')
-ax1.fill_between(qd_grouped_ts.index,
-                 qd_grouped_ts["iops"]["mean"] - qd_grouped_ts["iops"]["std"],
-                 qd_grouped_ts["iops"]["mean"] + qd_grouped_ts["iops"]["std"],
-                 color='blue', alpha=0.2)
-ax2.plot(qd_grouped_ts.index, qd_grouped_ts["lat_us"]["mean"], color='red', label='Latency (µs)')
-ax2.fill_between(qd_grouped_ts.index,
-                 qd_grouped_ts["lat_us"]["mean"] - qd_grouped_ts["lat_us"]["std"],
-                 qd_grouped_ts["lat_us"]["mean"] + qd_grouped_ts["lat_us"]["std"],
-                 color='red', alpha=0.2)
-ax1.set_xlabel("Time (s)")
-ax1.set_ylabel("IOPS")
-ax2.set_ylabel("Latency (µs)")
+
+# Throughput (IOPS) vs latency (avg)
+ax1.errorbar(qd_ts_grouped.index,
+             qd_ts_grouped["iops"]["mean"],
+             yerr=qd_ts_grouped["iops"]["std"],
+             fmt="o-", capsize=3, label="IOPS", color="blue")
+ax2.errorbar(qd_ts_grouped.index,
+             qd_ts_grouped["latency_avg_us"]["mean"],
+             yerr=qd_ts_grouped["latency_avg_us"]["std"],
+             fmt="s--", capsize=3, label="Latency (µs)", color="red")
+
+ax1.set_xlabel("Queue Depth (iodepth)")
+ax1.set_ylabel("Throughput (IOPS)")
+ax2.set_ylabel("Average Latency (µs)")
 ax1.set_title("Queue-Depth Time-Series")
-fig.tight_layout()
-fig.legend(loc="upper right")
+
+# Use logarithmic x-axis
+ax1.set_xscale("log")
+
+# Explicitly set x-ticks to include all iodepths
+all_qd = qd_ts_grouped.index.tolist()
+ax1.set_xticks(all_qd)
+ax1.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+
+ax1.grid(True, which="both", linestyle="--", alpha=0.5)
+
+# Combine legends from both axes
+lines, labels = ax1.get_legend_handles_labels()
+lines2, labels2 = ax2.get_legend_handles_labels()
+ax1.legend(lines + lines2, labels + labels2, loc="upper left")
+
+plt.tight_layout()
 plt.savefig(os.path.join(PLOTS_DIR, "qd_timeseries.png"))
 plt.close()
+
 
 # ---------------------------
 # 8. Summary overview
