@@ -19,13 +19,32 @@ qd_sweep = pd.read_csv(os.path.join(RESULTS_DIR, "qd_sweep.csv"))
 tail_latency = pd.read_csv(os.path.join(RESULTS_DIR, "tail_latency.csv"))
 seq_timeseries = pd.read_csv(os.path.join(RESULTS_DIR, "seq_write_timeseries.csv"))
 qd_timeseries = pd.read_csv(os.path.join(RESULTS_DIR, "qd_timeseries.csv"))
-summary = pd.read_csv(os.path.join(RESULTS_DIR, "summary_overview.csv"))
 
 # ---------------------------
 # 1. Zero-queue baseline table
 # ---------------------------
-print("Zero-queue latency (QD=1):")
-print(zero_qd.to_string(index=False))
+agg_df = zero_qd.groupby("pattern")[["avg_lat_us", "p95_us", "p99_us"]].mean().reset_index()
+
+# Plot grouped bar chart
+fig, ax = plt.subplots(figsize=(10,6))
+bar_width = 0.25
+x = range(len(agg_df))
+
+ax.bar([i - bar_width for i in x], agg_df["avg_lat_us"], width=bar_width, label="Avg (µs)")
+ax.bar(x, agg_df["p95_us"], width=bar_width, label="p95 (µs)")
+ax.bar([i + bar_width for i in x], agg_df["p99_us"], width=bar_width, label="p99 (µs)")
+
+# Formatting
+ax.set_xticks(x)
+ax.set_xticklabels(agg_df["pattern"], rotation=20)
+ax.set_ylabel("Latency (µs)")
+ax.set_title("Zero-queue (QD=1) Latency Baselines")
+ax.legend()
+ax.grid(axis="y", linestyle="--", alpha=0.6)
+
+plt.tight_layout()
+plt.savefig(os.path.join(PLOTS_DIR, "Zero-queue.png"))
+plt.close()
 
 # ---------------------------
 # 2. Block-size sweep
@@ -178,28 +197,6 @@ ax1.legend(lines + lines2, labels + labels2, loc="upper left")
 
 plt.tight_layout()
 plt.savefig(os.path.join(PLOTS_DIR, "qd_timeseries.png"))
-plt.close()
-
-
-# ---------------------------
-# 8. Summary overview
-# ---------------------------
-fig, ax = plt.subplots(figsize=(7,5))
-x = np.arange(len(summary))
-width = 0.25
-ax.bar(x - width, summary["median_avg_lat_us"], width,
-       yerr=summary.get("std_avg_lat_us", np.zeros_like(x)), capsize=3, label="Average Latency")
-ax.bar(x, summary["median_p95_us"], width,
-       yerr=summary.get("std_p95_us", np.zeros_like(x)), capsize=3, label="p95 Latency")
-ax.bar(x + width, summary["median_p99_us"], width,
-       yerr=summary.get("std_p99_us", np.zeros_like(x)), capsize=3, label="p99 Latency")
-ax.set_xticks(x)
-ax.set_xticklabels(summary["experiment"], rotation=30, ha="right")
-ax.set_ylabel("Latency (µs)")
-ax.set_title("Summary of Median Latencies")
-ax.legend()
-plt.tight_layout()
-plt.savefig(os.path.join(PLOTS_DIR, "summary_overview.png"))
 plt.close()
 
 print("All plots written to ./plots")

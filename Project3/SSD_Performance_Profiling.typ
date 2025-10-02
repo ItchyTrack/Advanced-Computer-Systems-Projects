@@ -48,7 +48,7 @@
 Zero-queue latency for 4 KiB random read and write.
 
 #align(center)[#block(width:8in)[
-#image("./plots/summary_overview.png", width:100%)
+#image("./plots/Zero-queue.png", width:100%)
 ]]
 
 
