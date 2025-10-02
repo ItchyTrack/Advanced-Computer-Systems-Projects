@@ -29,7 +29,6 @@
 #tableContentItem("Tail Latency")\
 #tableContentItem("Sequential Write Time-Series")\
 #tableContentItem("Queue Depth Time-Series")\
-#tableContentItem("Summary Overview")
 ]
 
 #pagebreak()
@@ -129,16 +128,4 @@ Throughput increases as the queue depth decreases and plateaus out at an iodepth
 
 #align(center)[#block(width:8in)[
 #image("./plots/qd_timeseries.png", width:100%)
-]]
-
-#pagebreak()
-= Summary Overview #label("Summary Overview")
-
-Median latency (avg/p95/p99) across experiments.
-
-The random read generally had a smaller latency than its random write conterpart. For random read the 99th percentile of latencies was only just over being twice as slow as the average. For random write the 99th percentile of latencies was 3 times larger than the average.
-
-
-#align(center)[#block(width:8in)[
-#image("./plots/summary_overview.png", width:100%)
 ]]
