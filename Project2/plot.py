@@ -10,18 +10,40 @@ PLOT_DIR = "plots"
 os.makedirs(PLOT_DIR, exist_ok=True)
 
 def plot_zero_queue_latency(csv_file):
-	df = pd.read_csv(csv_file)
-	if 'Size_KB' not in df.columns or 'Latency_ns' not in df.columns:
-		return
-	grouped = df.groupby('Size_KB')['Latency_ns'].agg(['mean','std']).fillna(0)
-	plt.figure()
-	plt.errorbar(grouped.index, grouped['mean'], yerr=grouped['std'], marker='o', capsize=4)
-	plt.xscale('log')
-	plt.xlabel('Working Set Size (KB)')
-	plt.ylabel('Latency (ns)')
-	plt.title('Zero Queue Baseline Latency')
-	plt.savefig(os.path.join(PLOT_DIR, "zero_queue_latency.png"))
-	plt.close()
+    df = pd.read_csv(csv_file)
+
+    required_cols = {'Size_KB', 'PerAccess_ns'}
+    if not required_cols.issubset(df.columns):
+        print("failed plot_zero_queue_latency: missing columns")
+        return
+
+    # Group in case there are multiple runs per Size_KB
+    grouped = df.groupby('Size_KB').agg({
+        'PerAccess_ns': 'mean',
+        'Total_ns': 'std' if 'Total_ns' in df.columns else 'mean'  # optional
+    }).reset_index()
+
+    # if you want error bars, compute stdev across runs
+    errors = df.groupby('Size_KB')['PerAccess_ns'].std().reset_index()
+    grouped = grouped.merge(errors, on="Size_KB", suffixes=('', '_err'))
+
+    plt.figure()
+    plt.errorbar(
+        grouped['Size_KB'],
+        grouped['PerAccess_ns'],
+        yerr=grouped['PerAccess_ns_err'],
+        marker='o',
+        capsize=4
+    )
+    plt.yscale('log')
+    plt.xscale('log')
+    plt.xlabel('Working Set Size (KB)')
+    plt.ylabel('Latency per access (ns)')
+    plt.title('Zero Queue Baseline Latency')
+
+    os.makedirs(PLOT_DIR, exist_ok=True)
+    plt.savefig(os.path.join(PLOT_DIR, "zero_queue_latency.png"))
+    plt.close()
 
 def plot_pattern_sweep(csv_file):
 	df = pd.read_csv(csv_file)
@@ -169,10 +191,10 @@ def plot_tlb_impact(csv_file):
 	plt.close()
 
 # Run all plots
-plot_zero_queue_latency("results/zero_queue_latency.csv")
-plot_pattern_sweep("results/pattern_sweep.csv")
+# plot_zero_queue_latency("results/zero_queue_latency.csv")
+# plot_pattern_sweep("results/pattern_sweep.csv")
 plot_rw_mix("results/read_write_mix.csv")
-plot_intensity_sweep("results/intensity_sweep.csv")
-plot_working_set_sweep("results/working_set_sweep.csv")
-plot_cache_miss_impact("results/cache_miss_rate.csv")
-plot_tlb_impact("results/tlb_impact.csv")
+# plot_intensity_sweep("results/intensity_sweep.csv")
+# plot_working_set_sweep("results/working_set_sweep.csv")
+# plot_cache_miss_impact("results/cache_miss_rate.csv")
+# plot_tlb_impact("results/tlb_impact.csv")

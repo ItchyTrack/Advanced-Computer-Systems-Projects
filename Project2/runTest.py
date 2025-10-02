@@ -5,10 +5,10 @@ import os
 TESTS = [
     # ("zero_queue_latency.cpp", "zero_queue_latency.csv", "Zero-queue latency"),
     # ("pattern_sweep.cpp", "pattern_sweep.csv", "Pattern & granularity sweep"),
-    # ("read_write_mix.cpp", "read_write_mix.csv", "Read/Write mix sweep"),
+    ("read_write_mix.cpp", "read_write_mix.csv", "Read/Write mix sweep"),
     # ("intensity_sweep.cpp", "intensity_sweep.csv", "Intensity sweep"),
     # ("working_set_sweep.cpp", "working_set_sweep.csv", "Working set sweep"),
-    ("cache_miss_impact.cpp", "cache_miss_impact.csv", "Cache-miss impact"),
+    # ("cache_miss_impact.cpp", "cache_miss_impact.csv", "Cache-miss impact"),
     # ("tlb_impact.cpp", "tlb_impact.csv", "TLB-miss impact"),
 ]
 
