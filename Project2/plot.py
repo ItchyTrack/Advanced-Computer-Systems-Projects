@@ -193,8 +193,8 @@ def plot_tlb_impact(csv_file):
 # Run all plots
 # plot_zero_queue_latency("results/zero_queue_latency.csv")
 # plot_pattern_sweep("results/pattern_sweep.csv")
-plot_rw_mix("results/read_write_mix.csv")
+# plot_rw_mix("results/read_write_mix.csv")
 # plot_intensity_sweep("results/intensity_sweep.csv")
-# plot_working_set_sweep("results/working_set_sweep.csv")
+plot_working_set_sweep("results/working_set_sweep.csv")
 # plot_cache_miss_impact("results/cache_miss_rate.csv")
 # plot_tlb_impact("results/tlb_impact.csv")

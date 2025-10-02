@@ -90,7 +90,9 @@ We can see that 100% writes achieve the highest bandwidth, while 100% reads got 
 
 #pagebreak()
 = Intensity Sweep #label("Intensity Sweep")
-Loaded-latency sweep using MLC to observe throughput-latency trade-off.
+Loaded-latency sweep measuring bandwidth and latency with more threads.
+
+Bandwidth increases from 1 to 2 threads, then saturates around 61-62 GB/s for higher thread counts. Mean latency per element decreases slightly with 2 threads, then rises gradually as threads increase further. The “knee” in the throughput-latency curve occurs at 2 threads.
 
 #align(center)[#block(width: 8in)[
 #box(width: 4in)[
@@ -100,23 +102,17 @@ Loaded-latency sweep using MLC to observe throughput-latency trade-off.
 	#image("plots/intensity_sweep_bandwidth.png", width: 100%)
 ]
 ]]
-Analysis:
-- Bandwidth saturates at high intensity while latency increases sharply past the “knee.”
-- Knee explained by Little's Law: Latency rises once the number of outstanding requests exceeds queueing capacity.
-- Achieved ~80-90% theoretical peak DRAM bandwidth.
 
 #pagebreak()
 = Working-Set Size Sweep #label("Working-Set Size Sweep")
-Measured latency across increasing working-set sizes.
+Measured latency across increasing working-set sizes from 1 KB to 2 GB.
 
+We can see that when the memory size is very small the latency is low. Before the size leaves L1 cache it greatly increase. It then slowly  decreases till the L1 cache boundary at 64KB and starts decreasing at a faster rate. When it leaves L2 at 4MB the latency flattens out and then starts increase from then on.
 #align(center)[#block(width: 8in)[
 #box(width: 6in)[
 	#image("plots/working_set_sweep.png", width: 100%)
 ]
 ]]
-Analysis:
-- Clear transitions observed at L1, L2, L3, and DRAM boundaries.
-- Annotated regions correspond well with measured zero-queue latencies.
 
 #pagebreak()
 = Cache-Miss Impact #label("Cache-Miss Impact")
@@ -133,24 +129,13 @@ In the graph we can see that the performance decreases as cache-miss ratio incre
 = TLB-Miss Impact #label("TLB-Miss Impact")
 Varied page locality and used huge pages to measure TLB sensitivity.
 
+We can see that the larger page sizes increased execution time while decreasing bandwidth. This is because allocations are more likely to be placed far away in memory and so decreases the chance of a cache hit.
+
 #align(center)[#block(width: 8in)[
-#box(width: 6in)[
+#box(width: 5in)[
 	#image("plots/tlb_impact_time.png", width: 100%)
 ]
-#box(width: 6in)[
+#box(width: 5in)[
 	#image("plots/tlb_impact_bandwidth.png", width: 100%)
 ]
 ]]
-Analysis:
-- TLB misses cause noticeable runtime and bandwidth reduction.
-- Huge pages reduce TLB misses and improve performance.
-- DTLB reach limits become evident in workloads with high working-set sizes.
-
-#pagebreak()
-= Summary
-- Latency grows by order of magnitude from L1 → L2 → L3 → DRAM.
-- Sequential accesses and smaller strides maximize bandwidth and minimize latency.
-- Read/write mix and access intensity strongly affect observed throughput.
-- Working-set sweeps identify cache size boundaries accurately.
-- Cache and TLB miss rates correlate well with performance degradation.
-- Observed results align with theoretical expectations, AMAT, and Little’s Law.
