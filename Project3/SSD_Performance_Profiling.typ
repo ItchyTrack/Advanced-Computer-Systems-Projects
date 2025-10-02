@@ -7,7 +7,7 @@
 
 #align(center,
 	[
-		#text([*SIMD Advantage Profiling*], size:20pt)\
+		#text([*SSD Performance Profiling*], size:20pt)\
 		#text([ECSE 4320], size:15pt)\
 		#text([Ben Herman], size:15pt)
 	]
@@ -74,10 +74,10 @@ We see in the graph:
 Effect of varying read/write ratio at fixed block size (4 KiB random).
 
 - 100% read yields highest IOPS and lowest latency
-- Increasing write fraction increases latency due to write amplification and cache flushes
-- Mixed workloads show linear reduction in IOPS relative to write ratio
+- Increasing write fraction increases latency
+- We see the inbetween ratios are inbetween these extremes accordingly
 
-#align(center)[#block(width:8in)[
+#align(center)[#block(width:6in)[
 #image("./plots/mix_sweep.png", width:100%)
 ]]
 
