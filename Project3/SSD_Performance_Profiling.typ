@@ -59,9 +59,8 @@ Zero-queue latency for 4 KiB random read and write.
 Impact of block size on random IOPS and sequential throughput.
 
 We see in the graph:
-- Small blocks ($<=$64 KiB): throughput limited by IOPS
-- Large blocks ($>=$128 KiB): throughput saturates PCIe (~7.8 GB/s)
-- Random IOPS decrease with block size; latency increases slightly
+- Small blocks less than 192 KB are throughput limited by IOPS
+- Large blocks more than 192 KB are throughput limited by the PCIe because its saturated with too many requests.
 
 #align(center)[#block(width:8in)[
 #image("./plots/block_sweep.png", width:100%)
