@@ -46,7 +46,7 @@
 #pagebreak()
 = Zero-Queue Baselines #label("Zero-Queue Baselines")
 
-Zero-queue (QD=1) latency for 4 KiB random and 128 KiB sequential operations.
+Zero-queue latency for 4 KiB random read and write.
 
 #align(center)[#block(width:8in)[
 #image("./plots/summary_overview.png", width:100%)
