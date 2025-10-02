@@ -25,10 +25,10 @@
 #tableContentItem("Zero-Queue Baselines")\
 #tableContentItem("Block-Size Sweep")\
 #tableContentItem("Read/Write Mix Sweep")\
-#tableContentItem("Queue-Depth Sweep")\
+#tableContentItem("Queue Depth Sweep")\
 #tableContentItem("Tail Latency")\
 #tableContentItem("Sequential Write Time-Series")\
-#tableContentItem("Queue-Depth Time-Series")\
+#tableContentItem("Queue Depth Time-Series")\
 #tableContentItem("Summary Overview")
 ]
 
@@ -82,7 +82,7 @@ Effect of varying read/write ratio at fixed block size (4 KiB random).
 
 
 #pagebreak()
-= Queue-Depth Sweep #label("Queue-Depth Sweep")
+= Queue Depth Sweep #label("Queue Depth Sweep")
 
 Throughput-latency trade-off curve for 4 KiB random reads.
 
@@ -113,9 +113,7 @@ Tail latency distribution (p50/p95/p99/p99.9) at different QDs.
 
 Sequential write throughput over 240s, simulating SLC cache behavior.
 
-- Burst period: 7.5 GB/s for ~15-21s (SLC cache)
-- Steady-state decay to ~2.5 GB/s
-- Micro-bursts introduce variability in latency and throughput
+We can see that the throughput starts out at ~7.5GB/s and starts decreasing till it plateaus out at ~2.5GB/s.
 
 #align(center)[#block(width:8in)[
 #image("./plots/seq_timeseries.png", width:100%)
@@ -123,14 +121,11 @@ Sequential write throughput over 240s, simulating SLC cache behavior.
 
 
 #pagebreak()
-= Queue-Depth Time-Series #label("Queue-Depth Time-Series")
+= Queue Depth Time-Series #label("Queue Depth Time-Series")
 
 IOPS and latency vs iodepth (1-256) time series.
 
-- Throughput increases with QD, latency increases slowly until saturation
-- Knee of curve around QD 32-64
-- Useful for identifying operating points balancing latency and throughput
-
+Throughput increases as the queue depth decreases and plateaus out at an iodepth of 32. Average latency seems to increases exponentially with Queue Depth.
 
 #align(center)[#block(width:8in)[
 #image("./plots/qd_timeseries.png", width:100%)
@@ -141,14 +136,9 @@ IOPS and latency vs iodepth (1-256) time series.
 
 Median latency (avg/p95/p99) across experiments.
 
-- Confirms reproducibility across three runs
-- Provides quick reference for comparative analysis
-- Shows variance across patterns and workloads
+The random read generally had a smaller latency than its random write conterpart. For random read the 99th percentile of latencies was only just over being twice as slow as the average. For random write the 99th percentile of latencies was 3 times larger than the average.
+
 
 #align(center)[#block(width:8in)[
 #image("./plots/summary_overview.png", width:100%)
 ]]
-
-
-
-
