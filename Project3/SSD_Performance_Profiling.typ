@@ -72,9 +72,9 @@ We see in the graph:
 
 Effect of varying read/write ratio at fixed block size (4 KiB random).
 
-- 100% read yields highest IOPS and lowest latency
-- Increasing write fraction increases latency
-- We see the inbetween ratios are inbetween these extremes accordingly
+- 100% read yields highest IOPS and lowest latency and the opposite for 100 write
+- Increasing write fraction increases latency and decreases IOPS
+- We see the other ratios also follow these trends
 
 #align(center)[#block(width:6in)[
 #image("./plots/mix_sweep.png", width:100%)
@@ -88,7 +88,7 @@ Throughput-latency trade-off curve for 4 KiB random reads.
 
 - Throughput rises with QD until saturation (~QD 32-64)
 - Latency grows sharply past the knee
-- Little’s Law relation visible: Throughput ≈ Concurrency / Latency
+- We can see Little's Law holds because throughput and latency are inversely proportional
 
 #align(center)[#block(width:8in)[
 #image("./plots/qd_sweep.png", width:100%)
