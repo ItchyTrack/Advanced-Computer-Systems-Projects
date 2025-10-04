@@ -42,6 +42,9 @@
 - OS: Sequoia 15.6
 - Powersource: Wall outlet
 - Ram: 16 GB
+
+=== Data
+- Data for this was haphazardly collected last minute and so no automation scripts were made.
 #pagebreak()
 = Zero-Queue Baselines #label("Zero-Queue Baselines")
 
